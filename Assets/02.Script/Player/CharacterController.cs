@@ -14,6 +14,7 @@ public class CharacterController : MonoBehaviour
     public float jumptForce;
     public LayerMask groundLayerMask;
     public bool IsRun = false;
+    public Vector3 beforeDir;
 
     [Header("Look")]
     public Transform cameraContainer;
@@ -32,7 +33,7 @@ public class CharacterController : MonoBehaviour
     [HideInInspector]
     public bool canLook = true;
 
-    private new Rigidbody rigidbody;
+    public new Rigidbody rigidbody;
     private Animator animator;
     private CharacterCondition condition;
 
@@ -55,6 +56,7 @@ public class CharacterController : MonoBehaviour
     void FixedUpdate()
     {
         Move();
+
         if (IsRun)
         {
             if(condition.mana.curValue > 1f)
@@ -89,6 +91,7 @@ public class CharacterController : MonoBehaviour
         }
         else if(context.canceled)
         {
+
             animator.SetBool("Walk", false);
             curMovementInput = Vector2.zero;
         }
@@ -106,7 +109,21 @@ public class CharacterController : MonoBehaviour
 
         dir *= moveSpeed * boostSpeed;
         dir.y = rigidbody.velocity.y;
-        rigidbody.velocity = dir;
+
+        if (dir != Vector3.zero)
+        {
+            rigidbody.velocity = dir ;
+            beforeDir = dir;
+        }
+        else
+        {
+            if (dir != beforeDir)
+            {
+                rigidbody.velocity = dir;
+                beforeDir = dir;
+            }
+        }
+
 
     }
 
