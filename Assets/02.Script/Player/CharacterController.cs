@@ -3,14 +3,18 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using static UnityEngine.InputSystem.InputAction;
 
 public class CharacterController : MonoBehaviour
 {
     [Header("Movement")]
     public float moveSpeed;
+    public float boostSpeed = 1f;
     private Vector2 curMovementInput;
     public float jumptForce;
     public LayerMask groundLayerMask;
+    public bool IsRun = false;
+    public Vector3 beforeDir;
 
     [Header("Look")]
     public Transform cameraContainer;
@@ -24,11 +28,17 @@ public class CharacterController : MonoBehaviour
     [HideInInspector]
     public bool canLook = true;
 
-    private Rigidbody rigidbody;
+    private new Rigidbody rigidbody;
+    private Animator animator;
+    private CharacterCondition condition;
+
+    public Action inventory;
 
     private void Awake()
     {
         rigidbody = GetComponent<Rigidbody>();
+        condition = GetComponent<CharacterCondition>();
+        animator = GetComponent<Animator>();
     }
 
     // Start is called before the first frame update
@@ -41,6 +51,17 @@ public class CharacterController : MonoBehaviour
     void Update()
     {
         Move();
+        if (IsRun)
+        {
+            if(condition.mana.curValue > 1f)
+                condition.mana.Subtract(condition.mana.passiveValue * 5f * Time.deltaTime);
+            else
+            {
+                IsRun = false;
+                animator.SetBool("Run", false);
+                boostSpeed = 1f;
+            }
+        }        
     }
 
     private void LateUpdate()
@@ -59,10 +80,12 @@ public class CharacterController : MonoBehaviour
     {
         if (context.performed)
         {
+            animator.SetBool("Walk", true);
             curMovementInput = context.ReadValue<Vector2>();
         }
         else if(context.canceled)
         {
+            animator.SetBool("Walk", false);
             curMovementInput = Vector2.zero;
         }
     }
@@ -70,9 +93,23 @@ public class CharacterController : MonoBehaviour
     private void Move()
     {
         Vector3 dir = transform.forward * curMovementInput.y + transform.right * curMovementInput.x;
-        dir *= moveSpeed;
+        dir *= moveSpeed * boostSpeed;
         dir.y = rigidbody.velocity.y;
-        rigidbody.velocity = dir;
+
+        if (dir != Vector3.zero)
+        {
+            rigidbody.velocity = dir;
+            beforeDir = dir;
+        }
+        else
+        {
+            if (dir != beforeDir)
+            {
+                rigidbody.velocity = dir;
+                beforeDir = dir;
+            }
+        }
+
     }
 
     public void OnLook(InputAction.CallbackContext context)
@@ -89,8 +126,10 @@ public class CharacterController : MonoBehaviour
     }
     public void OnJump(InputAction.CallbackContext context)
     {
-        if (context.performed && IsGrounded())
+        if (context.performed && IsGrounded() && condition.stamina.curValue > condition.stamina.maxValue * 0.1f)
         {
+            condition.stamina.Subtract(condition.stamina.maxValue * 0.1f);
+            animator.SetTrigger("Jump");
             rigidbody.AddForce(Vector2.up * jumptForce, ForceMode.Impulse);
         }
     }
@@ -118,7 +157,21 @@ public class CharacterController : MonoBehaviour
 
     public void OnRun(InputAction.CallbackContext context)
     {
-
+        if(context.phase == InputActionPhase.Performed) 
+        {
+            if (condition.mana.curValue > 0f)
+            {
+                IsRun = true;                
+                animator.SetBool("Run", true);
+                boostSpeed = 2f;
+            }
+        }
+        else if (context.canceled)
+        {
+            IsRun = false;
+            animator.SetBool("Run", false);
+            boostSpeed = 1f;
+        }
     }
 
     public void OnInteratction(InputAction.CallbackContext context)
@@ -128,11 +181,16 @@ public class CharacterController : MonoBehaviour
 
     public void OnInventory(InputAction.CallbackContext context)
     {
-
+        if (context.phase == InputActionPhase.Started)
+        {
+            inventory?.Invoke();
+            ToggleCursor();
+        }
     }
 
-    public void ToggleCursor(bool toggle)
+    void ToggleCursor()
     {
+        bool toggle = Cursor.lockState == CursorLockMode.Locked;
         Cursor.lockState = toggle ? CursorLockMode.None : CursorLockMode.Locked;
         canLook = !toggle;
     }

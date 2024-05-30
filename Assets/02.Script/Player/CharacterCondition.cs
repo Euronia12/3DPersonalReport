@@ -7,10 +7,10 @@ public class CharacterCondition : MonoBehaviour
 {
     public UICondition uiCondition;
 
-    Condition health { get { return uiCondition.health; } }
-    Condition hunger { get { return uiCondition.hunger; } }
-    Condition stamina { get { return uiCondition.stamina; } }
-    Condition mana { get { return uiCondition.mana; } }
+    public Condition health { get { return uiCondition.health; } }
+    public Condition hunger { get { return uiCondition.hunger; } }
+    public Condition stamina { get { return uiCondition.stamina; } }
+    public Condition mana { get { return uiCondition.mana; } }
 
     public float noHungerHealthDecay;
     public event Action onTakeDamage;

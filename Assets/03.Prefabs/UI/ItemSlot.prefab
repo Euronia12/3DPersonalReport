@@ -103,7 +103,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4155410088527996255}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -167,6 +167,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b93e4946b11ed9647bb6569e45eab619, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  item: {fileID: 0}
+  inventory: {fileID: 0}
+  button: {fileID: 4661586048357635829}
+  icon: {fileID: 1581285858047577652}
+  quatityText: {fileID: 2502021950698365217}
+  index: 0
+  equipped: 0
+  quantity: 0
 --- !u!114 &4581542474866422379
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -225,7 +233,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 7851764294700855595}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 8875548488766038219}
+        m_TargetAssemblyTypeName: ItemSlot, Assembly-CSharp
+        m_MethodName: OnClickButton
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &8340150921132573868
 GameObject:
   m_ObjectHideFlags: 0
@@ -291,7 +311,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 02
+  m_text: 0
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: e7591825865d6fa45bfa790bead8eab9, type: 2}
   m_sharedMaterial: {fileID: 865347167521721535, guid: e7591825865d6fa45bfa790bead8eab9, type: 2}
