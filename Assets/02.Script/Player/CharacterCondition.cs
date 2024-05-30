@@ -45,7 +45,7 @@ public class CharacterCondition : MonoBehaviour
 
     public void Eat(float amount)
     {
-        hunger.Add(amount);
+        StartCoroutine(IncreseStat(hunger, amount));
     }
 
     public void Die()
@@ -57,5 +57,15 @@ public class CharacterCondition : MonoBehaviour
     {
         health.Subtract(damageAmount);
         onTakeDamage?.Invoke();
+    }
+
+    IEnumerator IncreseStat(Condition condition,float amount)
+    {
+        while (amount > 0)
+        {
+            condition.Add(amount / 5f);
+            amount -= amount / 5f;
+            yield return new WaitForSeconds(1.0f);
+        }
     }
 }
