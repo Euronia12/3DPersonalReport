@@ -14,7 +14,6 @@ public class CharacterController : MonoBehaviour
     public float jumptForce;
     public LayerMask groundLayerMask;
     public bool IsRun = false;
-    public Vector3 beforeDir;
 
     [Header("Look")]
     public Transform cameraContainer;
@@ -22,6 +21,11 @@ public class CharacterController : MonoBehaviour
     public float maxXLook;
     private float camCurXRot;
     public float lookSensitivity;
+
+    [Header("CameraMode")]
+    public GameObject personalMode;
+    public GameObject thirdMode;
+    private bool IsPersonalMode = true;
 
     private Vector2 mouseDelta;
 
@@ -48,7 +52,7 @@ public class CharacterController : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         Move();
         if (IsRun)
@@ -68,7 +72,7 @@ public class CharacterController : MonoBehaviour
     {
         if (canLook)
         {
-            CameraLook();
+           CameraLook();
         }
     }
 
@@ -92,23 +96,17 @@ public class CharacterController : MonoBehaviour
 
     private void Move()
     {
+        if (!IsPersonalMode)
+        {
+            transform.forward = Camera.main.transform.forward;
+            transform.localEulerAngles = new Vector3(0, transform.localEulerAngles.y, 0);
+        }
+
         Vector3 dir = transform.forward * curMovementInput.y + transform.right * curMovementInput.x;
+
         dir *= moveSpeed * boostSpeed;
         dir.y = rigidbody.velocity.y;
-
-        if (dir != Vector3.zero)
-        {
-            rigidbody.velocity = dir;
-            beforeDir = dir;
-        }
-        else
-        {
-            if (dir != beforeDir)
-            {
-                rigidbody.velocity = dir;
-                beforeDir = dir;
-            }
-        }
+        rigidbody.velocity = dir;
 
     }
 
@@ -185,6 +183,27 @@ public class CharacterController : MonoBehaviour
         {
             inventory?.Invoke();
             ToggleCursor();
+        }
+    }
+
+    public void OnCameraMode(InputAction.CallbackContext context)
+    {
+        if (context.started)
+        {
+            if (personalMode.activeInHierarchy)
+            {
+                personalMode.SetActive(false);
+                thirdMode.SetActive(true);
+                Camera.main.cullingMask += LayerMask.GetMask("Player");
+                IsPersonalMode = !IsPersonalMode;
+            }
+            else
+            {
+                personalMode.SetActive(true);
+                thirdMode.SetActive(false);
+                Camera.main.cullingMask -= LayerMask.GetMask("Player");
+                IsPersonalMode = !IsPersonalMode;
+            }
         }
     }
 

@@ -31,7 +31,6 @@ public class SCanm : MonoBehaviour
                 yield return new WaitForSeconds(3.0f);
                 caution.SetActive(false);
             }
-
             yield return null;
         }
     }
